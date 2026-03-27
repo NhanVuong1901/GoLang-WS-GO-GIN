@@ -3,6 +3,7 @@ package friend
 import (
 	"net/http"
 	"ws/src/auth"
+	"ws/src/notify"
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/v2/bson"
@@ -31,6 +32,9 @@ func (ctrl *Controller) SendRequest(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Can not send friend request"})
 		return
 	}
+
+	// Gửi notify cho người nhận
+	notify.SendToUser(toObjiD.Hex(), "Bạn có một lời mời kết bạn !")
 
 	c.JSON(http.StatusOK, gin.H{"message": "Friend Request Sent !"})
 
