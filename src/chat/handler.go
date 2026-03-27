@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"ws/src/common"
+	"ws/src/room"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -33,6 +34,10 @@ func ServerWS(c *gin.Context) {
 		RoomID: roomID,
 		Send:   make(chan []byte),
 	}
+
+	// add user to room presence
+	room.RoomMembers.Join(roomID, userID)
+	defer room.RoomMembers.Leave(roomID, userID)
 
 	WS.Register <- client
 
