@@ -1,11 +1,14 @@
 package chat
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
+	"ws/src/common"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 var UPGRADER = websocket.Upgrader{
@@ -38,15 +41,32 @@ func ServerWS(c *gin.Context) {
 }
 
 func (c *Client) ReadPump() {
+	chatRepo := NewRepository(common.MongoConnect())
 	defer func() {
 		WS.UnRegister <- c
 		c.Conn.Close()
 	}()
+
 	for {
 		_, msg, err := c.Conn.ReadMessage()
 		if err != nil {
 			break
 		}
+
+		var m Message
+		if err := json.Unmarshal(msg, &m); err != nil {
+			continue
+		}
+
+		if m.Content == "" {
+			continue
+		}
+
+		m.SenderID, _ = bson.ObjectIDFromHex(c.UserID)
+		m.RoomID = c.RoomID
+
+		chatRepo.SaveMessage(&m)
+
 		WS.Broadcast <- &MessagePayload{
 			RoomID:  c.RoomID,
 			Message: msg,
