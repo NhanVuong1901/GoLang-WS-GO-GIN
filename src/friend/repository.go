@@ -90,3 +90,12 @@ func (r *Repository) RefuseRequest(requestID bson.ObjectID) error {
 	})
 	return err
 }
+
+func (r *Repository) GetRequestByID(id bson.ObjectID) (*FriendRequest, error) {
+	var req FriendRequest
+	err := r.FriendRequest.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&req)
+	if err != nil {
+		return nil, err
+	}
+	return &req, nil
+}
