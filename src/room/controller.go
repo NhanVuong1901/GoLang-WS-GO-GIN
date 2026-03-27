@@ -26,7 +26,9 @@ func (ctrl *Controller) Create(c *gin.Context) {
 
 	room, err := ctrl.Repo.createRoom(input.Name, userID)
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Không thể tạo room")
+		c.JSON(http.StatusConflict, gin.H{
+			"error": err.Error(),
+		})
 	}
 	c.JSON(http.StatusOK, room)
 }

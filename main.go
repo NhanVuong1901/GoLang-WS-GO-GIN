@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 
 	"ws/src/auth"
 	"ws/src/chat"
@@ -20,6 +21,10 @@ func main() {
 	userRepo := user.NewRepository(db)
 	friendRepo := friend.NewRepository(db)
 	roomRepo := room.NewRepository(db)
+
+	if err := room.EnsureRoomIndex(roomRepo.Rooms); err != nil {
+		log.Fatalf("Không thể đánh index vì document đã tồn tại trong collection")
+	}
 
 	userController := user.NewController(userRepo)
 	authController := auth.NewController(userRepo)
