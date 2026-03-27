@@ -1,0 +1,32 @@
+package room
+
+import (
+	"net/http"
+	"ws/src/auth"
+
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/v2/bson"
+)
+
+type Controller struct {
+	Repo *Repository
+}
+
+func NewController(r *Repository) *Controller {
+	return &Controller{Repo: r}
+}
+
+func (ctrl *Controller) Create(c *gin.Context) {
+	var input struct {
+		Name string `json:"name"`
+	}
+	c.BindJSON(&input)
+	userIDHex := c.MustGet(auth.UserIDKey).(string)
+	userID, _ := bson.ObjectIDFromHex(userIDHex)
+
+	room, err := ctrl.Repo.createRoom(input.Name, userID)
+	if err != nil {
+		c.String(http.StatusInternalServerError, "Không thể tạo room")
+	}
+	c.JSON(http.StatusOK, room)
+}

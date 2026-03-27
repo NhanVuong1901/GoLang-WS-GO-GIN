@@ -7,6 +7,7 @@ import (
 	"ws/src/chat"
 	"ws/src/common"
 	"ws/src/friend"
+	"ws/src/room"
 	"ws/src/user"
 
 	"github.com/gin-gonic/gin"
@@ -17,9 +18,12 @@ func main() {
 	db := common.MongoConnect()
 	userRepo := user.NewRepository(db)
 	friendRepo := friend.NewRepository(db)
+	roomRepo := room.NewRepository(db)
+
 	userController := user.NewController(userRepo)
 	authController := auth.NewController(userRepo)
 	friendController := friend.NewController(friendRepo)
+	roomController := room.NewController(roomRepo)
 
 	go chat.WS.Run()
 
@@ -34,6 +38,7 @@ func main() {
 	r.POST("/api/friend/accept", auth.JWTMiddleware(), friendController.AcceptRequest)
 	r.GET("/api/friends", auth.JWTMiddleware(), friendController.ListFriends)
 	r.POST("/api/friend/refuse", auth.JWTMiddleware(), friendController.RefuseRequest)
+	r.POST("/api/room", auth.JWTMiddleware(), roomController.Create)
 	r.PATCH("/api/user", auth.JWTMiddleware(), userController.Update)
 	r.GET("/ws", chat.ServerWS)
 
