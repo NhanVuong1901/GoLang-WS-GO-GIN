@@ -92,6 +92,14 @@ func (ctrl *Controller) RefuseRequest(c *gin.Context) {
 
 	requestObjID, _ := bson.ObjectIDFromHex(input.RequestID)
 
+	req, err := ctrl.Repo.GetRequestByID(requestObjID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": "Request not found",
+		})
+		return
+	}
+
 	if err := ctrl.Repo.RefuseRequest(requestObjID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": "Cannot refuse request",
@@ -99,6 +107,8 @@ func (ctrl *Controller) RefuseRequest(c *gin.Context) {
 		return
 	}
 
+	// Gửi notify cho người nhận
+	notify.SendToUser(req.FromUserID.Hex(), "Lời mời kết bạn đã bị từ chối!")
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Friend Request Rejected!",
 	})
