@@ -203,3 +203,8 @@ function hangUp() {
   }
   log("Đã ngắt cuộc gọi");
 }
+
+connectBtn.addEventListener("click", connectSignaling);
+startCameraBtn.addEventListener("click", startCamera);
+callBtn.addEventListener("click", makeCall);
+hangupBtn.addEventListener("click", hangUp);
