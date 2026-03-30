@@ -49,11 +49,18 @@ func main() {
 	r.POST("/api/room", auth.JWTMiddleware(), roomController.Create)
 	r.PATCH("/api/user", auth.JWTMiddleware(), userController.Update)
 
+	r.Static("/ui", "./ui")
+
 	r.GET("/ws", chat.ServerWS)
 	r.GET("/ws/notify", notify.ServerWS)
 	r.GET("/ws/signaling", callsignal.ServeSignalingWS)
 
 	port := common.GetEnv("PORT")
 	fmt.Println("Server is running at http://localhost" + port)
-	r.Run(port)
+	// r.Run(port)
+
+	err := r.RunTLS(port, "cert.pem", "key.pem")
+	if err != nil {
+		log.Fatal(err)
+	}
 }

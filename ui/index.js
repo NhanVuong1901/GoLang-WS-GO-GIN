@@ -104,8 +104,14 @@ function connectSignaling() {
     log("Vui lòng nhập ID của User 01");
     return;
   }
+
+  //
+  const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
   const wsUrl =
-    "ws://localhost:9999/ws/signaling?user=" + encodeURIComponent(myId);
+    protocol +
+    window.location.host +
+    "/ws/signaling?user=" +
+    encodeURIComponent(myId);
 
   ws = new WebSocket(wsUrl);
   ws.onopen = function () {
