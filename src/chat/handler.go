@@ -61,7 +61,7 @@ func (c *Client) ReadPump() {
 		room.RoomMembers.Leave(c.RoomID, c.UserID)
 		// 2. Braodcast news to all users in the room
 		leaveMsg, _ := json.Marshal(map[string]any{
-			"type":    "join",
+			"type":    "leave",
 			"room_id": c.RoomID,
 			"user_id": c.UserID,
 			"users":   room.RoomMembers.GetUsers(c.RoomID),
