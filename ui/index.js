@@ -175,18 +175,31 @@ async function makeCall() {
     log("Hãy nhập User ID để gọi");
     return;
   }
+
   if (!localStream) {
     log("Hãy mở camera trước");
     return;
   }
+
   if (!ws || ws.readyState !== WebSocket.OPEN) {
     log("Hãy kết nối signaling trước");
     return;
   }
-  log("Đã gửi offer tới " + selectedFriend.username);
+
+  currentTargetId = targetId;
+  if (!peerConnection) {
+    peerConnection = createPeerConnection();
+  }
+
+  const offer = await peerConnection.createOffer();
+  await peerConnection.setLocalDescription(offer);
+  sendSignal(targetId, "offer", peerConnection.localDescription);
+  log("Đã gửi offer tới " + targetId);
 }
 function hangUp() {
   if (peerConnection) {
+    peerConnection.close();
+    peerConnection = null;
   }
   log("Đã ngắt cuộc gọi");
 }
