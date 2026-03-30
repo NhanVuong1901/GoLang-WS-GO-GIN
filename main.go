@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"ws/src/auth"
+	"ws/src/callsignal"
 	"ws/src/chat"
 	"ws/src/common"
 	"ws/src/friend"
@@ -50,6 +51,7 @@ func main() {
 
 	r.GET("/ws", chat.ServerWS)
 	r.GET("/ws/notify", notify.ServerWS)
+	r.GET("/ws/signaling", callsignal.ServeSignalingWS)
 
 	port := common.GetEnv("PORT")
 	fmt.Println("Server is running at http://localhost" + port)
