@@ -6,6 +6,7 @@ import (
 	"ws/src/user"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
 type UserController struct {
@@ -43,5 +44,23 @@ func (ctrl *UserController) Login(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"token": token,
+	})
+}
+
+func (ctrl UserController) MyProfile(ctx *gin.Context) {
+	userIDStr := ctx.MustGet(UserIDKey).(string)
+	userID, err := bson.ObjectIDFromHex(userIDStr)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	u := ctrl.UserRepo.FindByID(userID)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"id":         u.ID.Hex(),
+		"username":   u.Username,
+		"email":      u.Email,
+		"created_at": u.CreatedAt,
 	})
 }

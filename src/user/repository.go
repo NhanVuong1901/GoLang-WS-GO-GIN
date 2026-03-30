@@ -61,3 +61,17 @@ func (r *Repository) UpdateByID(userID bson.ObjectID, update bson.M) error {
 	})
 	return err
 }
+
+func (r *Repository) FindByID(id bson.ObjectID) *User {
+	var user User
+	r.Collection.FindOne(context.TODO(), bson.M{"_id": id})
+	return &user
+}
+
+func (r *Repository) FindManyByID(ids []bson.ObjectID) []User {
+	cursor, _ := r.Collection.Find(context.TODO(), bson.M{"_id": bson.M{"$in": ids}})
+	defer cursor.Close(context.TODO())
+	var users []User
+	cursor.All(context.TODO(), &users)
+	return users
+}
