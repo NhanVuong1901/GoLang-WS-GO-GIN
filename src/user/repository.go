@@ -64,7 +64,7 @@ func (r *Repository) UpdateByID(userID bson.ObjectID, update bson.M) error {
 
 func (r *Repository) FindByID(id bson.ObjectID) *User {
 	var user User
-	r.Collection.FindOne(context.TODO(), bson.M{"_id": id})
+	r.Collection.FindOne(context.TODO(), bson.M{"_id": id}).Decode(&user)
 	return &user
 }
 

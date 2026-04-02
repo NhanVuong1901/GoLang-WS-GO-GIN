@@ -51,7 +51,7 @@ func (ctrl UserController) MyProfile(ctx *gin.Context) {
 	userIDStr := ctx.MustGet(UserIDKey).(string)
 	userID, err := bson.ObjectIDFromHex(userIDStr)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Invalid User ID"})
 		return
 	}
 
