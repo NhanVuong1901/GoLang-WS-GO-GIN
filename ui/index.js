@@ -214,3 +214,86 @@ connectBtn.addEventListener("click", connectSignaling);
 startCameraBtn.addEventListener("click", startCamera);
 callBtn.addEventListener("click", makeCall);
 hangupBtn.addEventListener("click", hangUp);
+
+// ================== LOGIN + FRIEND UI ==================
+
+let authToken = "";
+
+// LOGIN
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    const text = await res.text(); // 🔥 chống crash JSON
+    console.log("LOGIN RAW:", text);
+
+    const data = JSON.parse(text);
+
+    if (!data.token) {
+      log("Login failed");
+      return;
+    }
+
+    authToken = data.token;
+    log("Login success!");
+  } catch (err) {
+    log("Login error: " + err.message);
+  }
+});
+
+// LOAD FRIENDS
+document
+  .getElementById("loadFriendsBtn")
+  .addEventListener("click", async () => {
+    if (!authToken) {
+      log("Bạn chưa login!");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/friends", {
+        headers: {
+          Authorization: "Bearer " + authToken,
+        },
+      });
+
+      const text = await res.text();
+      console.log("FRIENDS RAW:", text);
+
+      const data = JSON.parse(text);
+
+      const list = document.getElementById("friendsList");
+      list.innerHTML = "";
+
+      if (!data.friends || data.friends.length === 0) {
+        list.innerHTML = "<li>No friends</li>";
+        return;
+      }
+
+      data.friends.forEach((f) => {
+        if (!f || typeof f !== "object") return; // 🔥 chặn mọi case lỗi
+
+        const li = document.createElement("li");
+
+        const id = f.id || "N/A";
+        const email = f.email || "N/A";
+
+        li.textContent = `ID: ${id} | Email: ${email}`;
+
+        list.appendChild(li);
+      });
+    } catch (err) {
+      log("Load friends error: " + err.message);
+    }
+  });
